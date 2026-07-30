@@ -17,10 +17,9 @@ def ping_test(request):
 
 
 def download_test(request):
+    size_mb = int(request.GET.get("size", 10))
 
-    size_mb = int(request.GET.get("size", 50))
-
-    chunk = os.urandom(1024 * 1024)  # 1 MB random data
+    chunk = os.urandom(1024 * 1024)
 
     def generate():
         for _ in range(size_mb):
@@ -38,16 +37,12 @@ def download_test(request):
 
 @csrf_exempt
 def upload_test(request):
-
     if request.method != "POST":
         return JsonResponse(
             {"error": "POST request required"},
-            status=400
+            status=405
         )
 
-    received = len(request.body)
-
     return JsonResponse({
-        "status": "success",
-        "received_bytes": received
+        "status": "success"
     })
