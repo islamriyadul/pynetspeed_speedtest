@@ -3,6 +3,9 @@ from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import time
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def speedtest(request):
@@ -37,12 +40,18 @@ def download_test(request):
 
 @csrf_exempt
 def upload_test(request):
+    logger.warning("UPLOAD VIEW CALLED")
+
     if request.method != "POST":
+        logger.warning("NOT A POST REQUEST")
         return JsonResponse(
             {"error": "POST request required"},
             status=405
         )
 
+    logger.warning("RETURNING SUCCESS")
+
     return JsonResponse({
-        "status": "success"
+        "status": "success",
+        "message": "Upload endpoint reached"
     })
