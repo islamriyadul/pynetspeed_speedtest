@@ -10,7 +10,7 @@ SECRET_KEY = 'django-insecure-^@-40=doi)6x6!@v65)*0+-7#&bl^#uh_iw5j#gwb(uzd_u7zp
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["pynetspeed.onrender.com"]
+ALLOWED_HOSTS = ["pynetspeed-speedtest.onrender.com"]
 
 
 INSTALLED_APPS = [
