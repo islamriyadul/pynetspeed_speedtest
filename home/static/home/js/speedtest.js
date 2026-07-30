@@ -68,7 +68,9 @@ async function measureUpload() {
 
     const data = new Uint8Array(size);
 
-    crypto.getRandomValues(data);
+    for (let i = 0; i < size; i++) {
+    data[i] = Math.floor(Math.random() * 256);
+}
 
     const start = performance.now();
 
