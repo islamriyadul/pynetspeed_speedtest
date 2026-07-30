@@ -6,52 +6,54 @@ const downloadEl = document.getElementById("download");
 const uploadEl = document.getElementById("upload");
 const pingEl = document.getElementById("ping");
 
+
+// -------------------- PING --------------------
+
 async function measurePing() {
 
-    let total = 0;
+    let totalPing = 0;
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 3; i++) {
 
         const start = performance.now();
 
-        const response = await fetch(
-            "/speedtest/ping/?t=" + Date.now(),
-            {
-                cache: "no-store"
-            }
-        );
+        const response = await fetch("/speedtest/ping/?t=" + Date.now(), {
+            cache: "no-store"
+        });
 
         if (!response.ok) {
-            throw new Error("Ping request failed");
+            throw new Error("Ping failed");
         }
 
         const end = performance.now();
 
-        total += (end - start);
+        totalPing += (end - start);
     }
 
-    return (total / 5).toFixed(1);
+    return (totalPing / 3).toFixed(1);
 }
 
+
+// -------------------- DOWNLOAD --------------------
 
 async function measureDownload() {
 
     const start = performance.now();
 
     const response = await fetch(
-        "/speedtest/download/?size=10&t=" + Date.now(),
+        "/speedtest/download/?size=3&t=" + Date.now(),
         {
             cache: "no-store"
         }
     );
 
     if (!response.ok) {
-        throw new Error("Download request failed");
+        throw new Error("Download failed");
     }
 
     const reader = response.body.getReader();
 
-    let received = 0;
+    let receivedLength = 0;
 
     while (true) {
 
@@ -59,14 +61,14 @@ async function measureDownload() {
 
         if (done) break;
 
-        received += value.length;
+        receivedLength += value.length;
     }
 
     const end = performance.now();
 
     const seconds = (end - start) / 1000;
 
-    const bits = received * 8;
+    const bits = receivedLength * 8;
 
     const speed = bits / seconds / 1000000;
 
@@ -74,15 +76,15 @@ async function measureDownload() {
 }
 
 
+// -------------------- UPLOAD --------------------
+
 async function measureUpload() {
 
-    // Upload 10 MB
-    const size = 10 * 1024 * 1024;
+    // Upload only 2 MB for faster test
+    const size = 2 * 1024 * 1024;
 
     const data = new Blob(
-        [
-            new Uint8Array(size)
-        ],
+        [new Uint8Array(size)],
         {
             type: "application/octet-stream"
         }
@@ -90,20 +92,17 @@ async function measureUpload() {
 
     const start = performance.now();
 
-    const response = await fetch(
-        "/speedtest/upload/",
-        {
-            method: "POST",
-            body: data,
-            cache: "no-store",
-            headers: {
-                "Content-Type": "application/octet-stream"
-            }
-        }
-    );
+    const response = await fetch("/speedtest/upload/", {
+        method: "POST",
+        body: data,
+        headers: {
+            "Content-Type": "application/octet-stream"
+        },
+        cache: "no-store"
+    });
 
     if (!response.ok) {
-        throw new Error("Upload request failed");
+        throw new Error("Upload failed");
     }
 
     await response.json();
@@ -120,9 +119,12 @@ async function measureUpload() {
 }
 
 
+// -------------------- MAIN --------------------
+
 async function startSpeedTest() {
 
     startBtn.disabled = true;
+    startBtn.innerText = "Testing...";
 
     downloadEl.textContent = "Testing...";
     uploadEl.textContent = "Waiting...";
@@ -141,17 +143,19 @@ async function startSpeedTest() {
         const upload = await measureUpload();
         uploadEl.textContent = upload + " Mbps";
 
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(error);
 
         downloadEl.textContent = "Error";
         uploadEl.textContent = "Error";
         pingEl.textContent = "Error";
-
-    } finally {
+    }
+    finally {
 
         startBtn.disabled = false;
+        startBtn.innerText = "Start Speed Test";
     }
 }
 
