@@ -1,3 +1,4 @@
+console.log("speedtest.js loaded");
 const startBtn = document.getElementById("start-btn");
 
 const downloadEl = document.getElementById("download");
