@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import time
+import os
 
 
 def speedtest(request):
@@ -11,22 +12,26 @@ def speedtest(request):
 def ping_test(request):
     return JsonResponse({
         "status": "ok",
-        "time": time.time()
+        "timestamp": time.time()
     })
 
 
 def download_test(request):
 
-    size = 20 * 1024 * 1024
+    size_mb = int(request.GET.get("size", 50))
 
-    data = b"0" * size
+    chunk = os.urandom(1024 * 1024)  # 1 MB random data
 
-    response = HttpResponse(
-        data,
+    def generate():
+        for _ in range(size_mb):
+            yield chunk
+
+    response = StreamingHttpResponse(
+        generate(),
         content_type="application/octet-stream"
     )
 
-    response["Content-Length"] = str(size)
+    response["Content-Length"] = str(size_mb * 1024 * 1024)
 
     return response
 
@@ -34,15 +39,15 @@ def download_test(request):
 @csrf_exempt
 def upload_test(request):
 
-    if request.method == "POST":
+    if request.method != "POST":
+        return JsonResponse(
+            {"error": "POST request required"},
+            status=400
+        )
 
-        uploaded_data = request.body
+    received = len(request.body)
 
-        return JsonResponse({
-            "received_bytes": len(uploaded_data)
-        })
-
-    return JsonResponse(
-        {"error": "POST request required"},
-        status=400
-    )
+    return JsonResponse({
+        "status": "success",
+        "received_bytes": received
+    })

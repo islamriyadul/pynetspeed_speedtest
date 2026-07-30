@@ -7,13 +7,22 @@ const pingEl = document.getElementById("ping");
 
 async function measurePing() {
 
-    const start = performance.now();
+    let totalPing = 0;
 
-    await fetch("/speedtest/ping/?t=" + Date.now());
+    for (let i = 0; i < 5; i++) {
 
-    const end = performance.now();
+        const start = performance.now();
 
-    return Math.round(end - start);
+        await fetch("/speedtest/ping/?t=" + Date.now(), {
+            cache: "no-store"
+        });
+
+        const end = performance.now();
+
+        totalPing += (end - start);
+    }
+
+    return (totalPing / 5).toFixed(1);
 }
 
 
@@ -22,33 +31,44 @@ async function measureDownload() {
     const start = performance.now();
 
     const response = await fetch(
-        "/speedtest/download/?t=" + Date.now()
+        "/speedtest/download/?size=50&t=" + Date.now(),
+        {
+            cache: "no-store"
+        }
     );
 
-    const blob = await response.blob();
+    const reader = response.body.getReader();
+
+    let receivedLength = 0;
+
+    while (true) {
+
+        const { done, value } = await reader.read();
+
+        if (done) break;
+
+        receivedLength += value.length;
+    }
 
     const end = performance.now();
 
-    const bytes = blob.size;
-
     const seconds = (end - start) / 1000;
 
-    const mbps =
-        ((bytes * 8) / 1024 / 1024) / seconds;
+    const bits = receivedLength * 8;
 
-    return mbps.toFixed(2);
+    const speed = bits / seconds / 1000000;
+
+    return speed.toFixed(2);
 }
 
 
 async function measureUpload() {
 
-    const size = 5 * 1024 * 1024;
+    const size = 20 * 1024 * 1024;
 
     const data = new Uint8Array(size);
 
-    for (let i = 0; i < size; i++) {
-        data[i] = Math.floor(Math.random() * 256);
-    }
+    crypto.getRandomValues(data);
 
     const start = performance.now();
 
@@ -61,20 +81,21 @@ async function measureUpload() {
 
     const seconds = (end - start) / 1000;
 
-    const mbps =
-        ((size * 8) / 1024 / 1024) / seconds;
+    const bits = size * 8;
 
-    return mbps.toFixed(2);
+    const speed = bits / seconds / 1000000;
+
+    return speed.toFixed(2);
 }
 
 
-startBtn.addEventListener("click", async () => {
+async function startSpeedTest() {
 
     startBtn.disabled = true;
 
-    pingEl.innerHTML = "Testing...";
-    downloadEl.innerHTML = "Waiting...";
+    downloadEl.innerHTML = "Testing...";
     uploadEl.innerHTML = "Waiting...";
+    pingEl.innerHTML = "Testing...";
 
     try {
 
@@ -82,31 +103,30 @@ startBtn.addEventListener("click", async () => {
 
         pingEl.innerHTML = ping + " ms";
 
-        downloadEl.innerHTML = "Testing...";
+        const download = await measureDownload();
 
-        const downloadSpeed =
-            await measureDownload();
-
-        downloadEl.innerHTML =
-            downloadSpeed + " Mbps";
+        downloadEl.innerHTML = download + " Mbps";
 
         uploadEl.innerHTML = "Testing...";
 
-        const uploadSpeed =
-            await measureUpload();
+        const upload = await measureUpload();
 
-        uploadEl.innerHTML =
-            uploadSpeed + " Mbps";
+        uploadEl.innerHTML = upload + " Mbps";
 
     }
     catch (error) {
 
         console.error(error);
 
-        pingEl.innerHTML = "Error";
         downloadEl.innerHTML = "Error";
+
         uploadEl.innerHTML = "Error";
+
+        pingEl.innerHTML = "Error";
     }
 
     startBtn.disabled = false;
-});
+}
+
+
+startBtn.addEventListener("click", startSpeedTest);
