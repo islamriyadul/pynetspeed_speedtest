@@ -1,24 +1,34 @@
+/* =========================================
+   GOOGLE FONT
+========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:"Poppins",sans-serif;
+    font-family:'Poppins',sans-serif;
 }
 
 body{
 
-    min-height:100vh;
-
-    background:linear-gradient(135deg,#081229,#0c1f45,#163c78);
+    background:linear-gradient(135deg,#06142d,#0d2248,#123b70);
 
     color:#fff;
+
+    min-height:100vh;
+
+    overflow-x:hidden;
 
 }
 
 
-/* NAVBAR */
+/* =========================================
+   NAVBAR
+========================================= */
 
-nav{
+.navbar{
 
     width:100%;
 
@@ -30,302 +40,173 @@ nav{
 
     align-items:center;
 
-    padding:0 8%;
+    padding:0 80px;
 
-    background:rgba(255,255,255,.05);
+    background:rgba(255,255,255,.03);
 
-    backdrop-filter:blur(20px);
+    backdrop-filter:blur(12px);
 
-    position:fixed;
-
-    top:0;
-
-    left:0;
-
-    z-index:999;
+    border-bottom:1px solid rgba(255,255,255,.08);
 
 }
 
 .logo{
 
-    font-size:30px;
+    font-size:28px;
 
     font-weight:700;
 
-    color:#4fc3ff;
-
-}
-
-nav ul{
-
-    display:flex;
-
-    list-style:none;
-
-    gap:40px;
-
-}
-
-nav ul li a{
-
-    color:white;
-
-    text-decoration:none;
-
-    font-size:17px;
-
-    transition:.3s;
-
-}
-
-nav ul li a:hover{
-
-    color:#4fc3ff;
-
-}
-
-
-
-/* HERO */
-
-.hero{
-
-    min-height:100vh;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    flex-direction:column;
-
-    padding-top:90px;
-
-}
-
-.hero h1{
-
-    font-size:52px;
-
-    margin-bottom:15px;
-
-}
-
-.hero p{
-
-    font-size:20px;
-
-    color:#d7d7d7;
-
-    margin-bottom:50px;
-
-}
-
-
-
-/* GO BUTTON */
-
-.speed-circle{
-
-    width:260px;
-
-    height:260px;
-
-    border-radius:50%;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    background:rgba(255,255,255,.08);
-
-    border:6px solid rgba(255,255,255,.08);
-
-    box-shadow:
-
-    0 0 30px rgba(79,195,255,.35),
-
-    inset 0 0 30px rgba(79,195,255,.15);
-
-    margin-bottom:60px;
-
-    transition:.4s;
-
-}
-
-.speed-circle:hover{
-
-    transform:scale(1.05);
-
-    box-shadow:
-
-    0 0 50px rgba(79,195,255,.8);
-
-}
-
-#start-btn{
-
-    width:170px;
-
-    height:170px;
-
-    border-radius:50%;
-
-    border:none;
-
-    background:#27b4ff;
-
-    color:white;
-
-    font-size:42px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-    transition:.35s;
-
-}
-
-#start-btn:hover{
-
-    background:#11a4f4;
-
-    transform:scale(1.06);
-
-}
-
-#start-btn:disabled{
-
-    opacity:.7;
-
-    cursor:not-allowed;
-
-}
-
-
-
-/* RESULT CARDS */
-
-.results{
-
-    width:90%;
-
-    max-width:1000px;
-
-    display:flex;
-
-    justify-content:center;
-
-    gap:30px;
-
-    flex-wrap:wrap;
-
-}
-
-.result-card{
-
-    width:250px;
-
-    background:rgba(255,255,255,.08);
-
-    backdrop-filter:blur(18px);
-
-    border-radius:20px;
-
-    padding:35px;
-
-    text-align:center;
-
-    transition:.35s;
-
-}
-
-.result-card:hover{
-
-    transform:translateY(-8px);
-
-    box-shadow:0 10px 35px rgba(0,0,0,.3);
-
-}
-
-.result-card span{
-
-    font-size:20px;
-
-    color:#9fdcff;
-
-}
-
-.result-card h2{
-
-    margin-top:18px;
-
-    font-size:36px;
-
-}
-
-
-
-/* RESPONSIVE */
-
-@media(max-width:900px){
-
-.hero h1{
-
-font-size:40px;
-
-}
-
-.speed-circle{
-
-width:220px;
-
-height:220px;
-
-}
-
-#start-btn{
-
-width:150px;
-
-height:150px;
-
-font-size:36px;
-
-}
-
-.result-card{
-
-width:90%;
+    color:#5fb7ff;
 
 }
 
 nav{
 
-padding:0 20px;
+    display:flex;
+
+    gap:40px;
 
 }
 
-nav ul{
+nav a{
 
-gap:20px;
+    text-decoration:none;
+
+    color:white;
+
+    transition:.3s;
+
+    font-weight:500;
 
 }
 
+nav a:hover{
+
+    color:#69c8ff;
+
 }
-.speedometer{
 
-    position:relative;
+.active{
 
-    width:320px;
+    color:#69c8ff;
 
-    height:320px;
+}
 
-    border-radius:50%;
+
+/* =========================================
+   HERO
+========================================= */
+
+.hero{
+
+    text-align:center;
+
+    margin-top:50px;
+
+}
+
+.hero h1{
+
+    font-size:42px;
+
+    font-weight:700;
+
+}
+
+.hero p{
+
+    margin-top:10px;
+
+    color:#d9e8ff;
+
+}
+
+
+/* =========================================
+   MAIN
+========================================= */
+
+.speed-wrapper{
+
+    width:90%;
+
+    margin:60px auto;
+
+    display:grid;
+
+    grid-template-columns:260px 1fr 260px;
+
+    gap:40px;
+
+    align-items:center;
+
+}
+
+
+/* =========================================
+   CARDS
+========================================= */
+
+.card{
+
+    background:rgba(255,255,255,.05);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:18px;
+
+    padding:25px;
+
+    margin-bottom:22px;
+
+    backdrop-filter:blur(10px);
+
+    transition:.35s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-6px);
+
+    border-color:#4ab3ff;
+
+    box-shadow:0 0 35px rgba(74,179,255,.25);
+
+}
+
+.label{
+
+    display:block;
+
+    font-size:15px;
+
+    color:#b8d7ff;
+
+    margin-bottom:12px;
+
+}
+
+.card h2{
+
+    font-size:34px;
+
+    font-weight:700;
+
+}
+
+.card h3{
+
+    font-size:22px;
+
+}
+
+
+/* =========================================
+   CENTER
+========================================= */
+
+.center-panel{
 
     display:flex;
 
@@ -333,29 +214,109 @@ gap:20px;
 
     align-items:center;
 
-    background:rgba(255,255,255,.06);
+}
+
+
+/* =========================================
+   SPEED CIRCLE
+========================================= */
+
+.speed-circle{
+
+    width:420px;
+
+    height:420px;
+
+    border-radius:50%;
+
+    position:relative;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:
+
+    radial-gradient(circle,#163e73 0%,#0c2448 70%);
 
     box-shadow:
-    inset 0 0 25px rgba(255,255,255,.08),
-    0 0 40px rgba(0,180,255,.25);
 
-    margin-bottom:50px;
+    0 0 50px rgba(0,153,255,.35),
+
+    inset 0 0 60px rgba(255,255,255,.05);
 
 }
 
-.speed-value{
+
+/* OUTER GLOW */
+
+.speed-circle::before{
+
+    content:"";
 
     position:absolute;
 
-    top:55px;
+    inset:-12px;
 
-    text-align:center;
+    border-radius:50%;
+
+    background:linear-gradient(
+        90deg,
+        #00a8ff,
+        #00e5ff,
+        #008cff,
+        #00a8ff
+    );
+
+    z-index:-1;
+
+    filter:blur(12px);
+
+    opacity:.9;
 
 }
 
-.speed-value span{
 
-    font-size:58px;
+/* INNER */
+
+.circle-inner{
+
+    width:330px;
+
+    height:330px;
+
+    border-radius:50%;
+
+    background:#081c39;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border:6px solid rgba(255,255,255,.06);
+
+}
+
+
+/* SPEED */
+
+.speed-value{
+
+    text-align:center;
+
+    margin-bottom:20px;
+
+}
+
+#speed-number{
+
+    font-size:74px;
 
     font-weight:700;
 
@@ -365,8 +326,444 @@ gap:20px;
 
     display:block;
 
-    font-size:20px;
+    margin-top:-10px;
 
-    color:#8fd7ff;
+    color:#9bc7ff;
+
+    font-size:22px;
+
+}
+
+
+/* GO BUTTON */
+
+#start-btn{
+
+    width:130px;
+
+    height:130px;
+
+    border:none;
+
+    border-radius:50%;
+
+    cursor:pointer;
+
+    font-size:34px;
+
+    font-weight:700;
+
+    color:white;
+
+    background:linear-gradient(
+        135deg,
+        #1fa2ff,
+        #007bff
+    );
+
+    transition:.35s;
+
+    box-shadow:
+
+    0 0 25px rgba(0,162,255,.55);
+
+}
+
+#start-btn:hover{
+
+    transform:scale(1.08);
+
+    box-shadow:
+
+    0 0 45px rgba(0,162,255,.9);
+
+}
+/* =========================================
+   ANIMATED RING
+========================================= */
+
+.speed-circle::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:440px;
+
+    height:440px;
+
+    border-radius:50%;
+
+    border:4px solid transparent;
+
+    border-top:4px solid #55c8ff;
+
+    border-right:4px solid #00aaff;
+
+    animation:spin 6s linear infinite;
+
+    opacity:.8;
+
+}
+
+@keyframes spin{
+
+    from{
+
+        transform:rotate(0deg);
+
+    }
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+
+/* =========================================
+   BUTTON EFFECT
+========================================= */
+
+#start-btn:active{
+
+    transform:scale(.95);
+
+}
+
+#start-btn:disabled{
+
+    cursor:not-allowed;
+
+    opacity:.8;
+
+}
+
+
+/* =========================================
+   FLOATING CARDS
+========================================= */
+
+.left-panel .card{
+
+    animation:floatLeft 6s ease-in-out infinite;
+
+}
+
+.right-panel .card{
+
+    animation:floatRight 6s ease-in-out infinite;
+
+}
+
+.left-panel .card:nth-child(2){
+
+    animation-delay:.5s;
+
+}
+
+.left-panel .card:nth-child(3){
+
+    animation-delay:1s;
+
+}
+
+.right-panel .card:nth-child(2){
+
+    animation-delay:.6s;
+
+}
+
+.right-panel .card:nth-child(3){
+
+    animation-delay:1.2s;
+
+}
+
+
+@keyframes floatLeft{
+
+    0%{
+
+        transform:translateY(0px);
+
+    }
+
+    50%{
+
+        transform:translateY(-8px);
+
+    }
+
+    100%{
+
+        transform:translateY(0px);
+
+    }
+
+}
+
+@keyframes floatRight{
+
+    0%{
+
+        transform:translateY(0px);
+
+    }
+
+    50%{
+
+        transform:translateY(8px);
+
+    }
+
+    100%{
+
+        transform:translateY(0px);
+
+    }
+
+}
+
+
+/* =========================================
+   GLOWING NUMBER
+========================================= */
+
+#speed-number{
+
+    color:#ffffff;
+
+    text-shadow:
+
+    0 0 10px #5fb7ff,
+
+    0 0 20px #5fb7ff,
+
+    0 0 40px #008cff;
+
+}
+
+
+/* =========================================
+   SCROLLBAR
+========================================= */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#2f8fff;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#081a35;
+
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media(max-width:1200px){
+
+    .speed-wrapper{
+
+        grid-template-columns:1fr;
+
+        gap:40px;
+
+        justify-items:center;
+
+    }
+
+    .left-panel{
+
+        width:100%;
+
+        display:grid;
+
+        grid-template-columns:repeat(3,1fr);
+
+        gap:20px;
+
+    }
+
+    .right-panel{
+
+        width:100%;
+
+        display:grid;
+
+        grid-template-columns:repeat(3,1fr);
+
+        gap:20px;
+
+    }
+
+    .card{
+
+        margin-bottom:0;
+
+    }
+
+}
+
+
+@media(max-width:900px){
+
+    .navbar{
+
+        padding:20px;
+
+        flex-direction:column;
+
+        height:auto;
+
+        gap:20px;
+
+    }
+
+    nav{
+
+        flex-wrap:wrap;
+
+        justify-content:center;
+
+        gap:20px;
+
+    }
+
+    .hero h1{
+
+        font-size:32px;
+
+    }
+
+    .speed-circle{
+
+        width:320px;
+
+        height:320px;
+
+    }
+
+    .speed-circle::after{
+
+        width:340px;
+
+        height:340px;
+
+    }
+
+    .circle-inner{
+
+        width:250px;
+
+        height:250px;
+
+    }
+
+    #speed-number{
+
+        font-size:54px;
+
+    }
+
+    #start-btn{
+
+        width:100px;
+
+        height:100px;
+
+        font-size:28px;
+
+    }
+
+    .left-panel{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .right-panel{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+
+@media(max-width:500px){
+
+    .hero{
+
+        margin-top:30px;
+
+    }
+
+    .hero h1{
+
+        font-size:26px;
+
+    }
+
+    .hero p{
+
+        font-size:14px;
+
+    }
+
+    .speed-circle{
+
+        width:260px;
+
+        height:260px;
+
+    }
+
+    .speed-circle::after{
+
+        width:280px;
+
+        height:280px;
+
+    }
+
+    .circle-inner{
+
+        width:200px;
+
+        height:200px;
+
+    }
+
+    #speed-number{
+
+        font-size:42px;
+
+    }
+
+    #start-btn{
+
+        width:80px;
+
+        height:80px;
+
+        font-size:22px;
+
+    }
 
 }
