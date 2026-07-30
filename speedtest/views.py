@@ -17,7 +17,7 @@ def ping_test(request):
 
 def download_test(request):
 
-    size = 20 * 1024 * 1024  # 20 MB
+    size = 20 * 1024 * 1024
 
     data = b"0" * size
 
