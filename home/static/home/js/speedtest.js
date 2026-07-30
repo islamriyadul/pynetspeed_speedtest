@@ -15,9 +15,13 @@ async function measurePing() {
 
         const start = performance.now();
 
-        await fetch("/speedtest/ping/?t=" + Date.now(), {
+        const response = await fetch("/speedtest/ping/?t=" + Date.now(), {
             cache: "no-store"
         });
+
+        if (!response.ok) {
+            throw new Error("Ping failed");
+        }
 
         const end = performance.now();
 
@@ -62,16 +66,14 @@ async function measureDownload() {
 
     const bits = receivedLength * 8;
 
-    const speed = bits / seconds / 1000000;
-
-    return speed.toFixed(2);
+    return (bits / seconds / 1000000).toFixed(2);
 }
 
 
 async function measureUpload() {
 
-    // Upload only 2 MB for faster testing
-    const size = 2 * 1024 * 1024;
+    // 1 MB upload
+    const size = 1 * 1024 * 1024;
 
     const data = new Uint8Array(size);
 
@@ -100,9 +102,7 @@ async function measureUpload() {
 
     const bits = size * 8;
 
-    const speed = bits / seconds / 1000000;
-
-    return speed.toFixed(2);
+    return (bits / seconds / 1000000).toFixed(2);
 }
 
 
@@ -110,36 +110,35 @@ async function startSpeedTest() {
 
     startBtn.disabled = true;
 
-    downloadEl.innerHTML = "Testing...";
-    uploadEl.innerHTML = "Waiting...";
-    pingEl.innerHTML = "Testing...";
+    downloadEl.textContent = "Testing...";
+    uploadEl.textContent = "Waiting...";
+    pingEl.textContent = "Testing...";
 
     try {
 
         const ping = await measurePing();
-
-        pingEl.innerHTML = ping + " ms";
+        pingEl.textContent = ping + " ms";
 
         const download = await measureDownload();
+        downloadEl.textContent = download + " Mbps";
 
-        downloadEl.innerHTML = download + " Mbps";
-
-        uploadEl.innerHTML = "Testing...";
+        uploadEl.textContent = "Testing...";
 
         const upload = await measureUpload();
-
-        uploadEl.innerHTML = upload + " Mbps";
+        uploadEl.textContent = upload + " Mbps";
 
     } catch (error) {
 
         console.error(error);
 
-        downloadEl.innerHTML = "Error";
-        uploadEl.innerHTML = "Error";
-        pingEl.innerHTML = "Error";
-    }
+        downloadEl.textContent = "Error";
+        uploadEl.textContent = "Error";
+        pingEl.textContent = "Error";
 
-    startBtn.disabled = false;
+    } finally {
+
+        startBtn.disabled = false;
+    }
 }
 
 
