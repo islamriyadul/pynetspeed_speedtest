@@ -1,0 +1,190 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PyNetSpeed</title>
+
+    <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+<header class="navbar">
+
+    <div class="logo">
+
+        ⚡ PyNetSpeed
+
+    </div>
+
+    <nav>
+
+        <a href="/">Home</a>
+
+        <a class="active" href="/speedtest/">Speed Test</a>
+
+        <a href="#">History</a>
+
+        <a href="#">About</a>
+
+        <a href="#">Contact</a>
+
+    </nav>
+
+</header>
+
+
+<!-- ================= TITLE ================= -->
+
+<section class="hero">
+
+    <h1>Internet Speed Test</h1>
+
+    <p>
+        Measure your WiFi and Internet speed in real time.
+    </p>
+
+</section>
+
+
+<!-- ================= MAIN ================= -->
+
+<section class="speed-wrapper">
+
+    <!-- LEFT -->
+
+    <div class="left-panel">
+
+        <div class="card">
+
+            <span class="label">Download</span>
+
+            <h2 id="download">0 Mbps</h2>
+
+        </div>
+
+        <div class="card">
+
+            <span class="label">Upload</span>
+
+            <h2 id="upload">0 Mbps</h2>
+
+        </div>
+
+        <div class="card">
+
+            <span class="label">Ping</span>
+
+            <h2 id="ping">0 ms</h2>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- CENTER -->
+
+    <div class="center-panel">
+
+        <div class="speed-circle" id="speed-circle">
+
+            <div class="circle-inner">
+
+                <div class="speed-value">
+
+                    <span id="speed-number">0</span>
+
+                    <small>Mbps</small>
+
+                </div>
+
+                <button id="start-btn">
+
+                    GO
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- RIGHT -->
+
+    <div class="right-panel">
+
+        <div class="card">
+
+            <span class="label">
+
+                ISP
+
+            </span>
+
+            <h3 id="isp">
+
+                Detecting...
+
+            </h3>
+
+        </div>
+
+        <div class="card">
+
+            <span class="label">
+
+                IP Address
+
+            </span>
+
+            <h3 id="ip">
+
+                Detecting...
+
+            </h3>
+
+        </div>
+
+        <div class="card">
+
+            <span class="label">
+
+                Server
+
+            </span>
+
+            <h3>
+
+                Singapore
+
+            </h3>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<script src="{% static 'home/js/speedtest.js' %}"></script>
+
+</body>
+
+</html>
