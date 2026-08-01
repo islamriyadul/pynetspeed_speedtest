@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 </head>
 
@@ -26,7 +26,7 @@
 
     <div class="logo">
 
-        ⚡ PyNetSpeed
+        PyNetSpeed
 
     </div>
 
@@ -35,12 +35,6 @@
         <a href="/">Home</a>
 
         <a class="active" href="/speedtest/">Speed Test</a>
-
-        <a href="#">History</a>
-
-        <a href="#">About</a>
-
-        <a href="#">Contact</a>
 
     </nav>
 
@@ -95,12 +89,16 @@
     </div>
 
 
-
-    <!-- CENTER -->
+    <!-- CENTER — GAUGE -->
 
     <div class="center-panel">
 
         <div class="speed-circle" id="speed-circle">
+
+            <svg class="gauge-ring" viewBox="0 0 260 260">
+                <circle class="gauge-track" cx="130" cy="130" r="120"></circle>
+                <circle class="gauge-fill" id="gauge-fill" cx="130" cy="130" r="120"></circle>
+            </svg>
 
             <div class="circle-inner">
 
@@ -125,56 +123,31 @@
     </div>
 
 
-
     <!-- RIGHT -->
 
     <div class="right-panel">
 
         <div class="card">
 
-            <span class="label">
+            <span class="label">ISP</span>
 
-                ISP
-
-            </span>
-
-            <h3 id="isp">
-
-                Detecting...
-
-            </h3>
+            <h3 id="isp">Detecting...</h3>
 
         </div>
 
         <div class="card">
 
-            <span class="label">
+            <span class="label">IP Address</span>
 
-                IP Address
-
-            </span>
-
-            <h3 id="ip">
-
-                Detecting...
-
-            </h3>
+            <h3 id="ip">Detecting...</h3>
 
         </div>
 
         <div class="card">
 
-            <span class="label">
+            <span class="label">Server</span>
 
-                Server
-
-            </span>
-
-            <h3>
-
-                Singapore
-
-            </h3>
+            <h3>Singapore</h3>
 
         </div>
 

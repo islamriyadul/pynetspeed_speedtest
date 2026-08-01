@@ -11,6 +11,13 @@ const downloadEl = document.getElementById("download");
 const uploadEl = document.getElementById("upload");
 const pingEl = document.getElementById("ping");
 const speedNumber = document.getElementById("speed-number");
+const speedCircle = document.getElementById("speed-circle");
+const gaugeFill = document.getElementById("gauge-fill");
+
+// Gauge ring circumference (r=120 -> 2 * PI * 120 ≈ 754), and the
+// speed value (Mbps) that should visually represent a "full" ring.
+const GAUGE_CIRCUMFERENCE = 754;
+const GAUGE_MAX_MBPS = 150;
 
 // ======================================
 // VARIABLES
@@ -38,6 +45,18 @@ function sleep(ms) {
 function setCenterSpeed(value) {
     if (speedNumber) {
         speedNumber.textContent = Number(value).toFixed(1);
+    }
+
+    if (gaugeFill) {
+        const ratio = Math.min(Number(value) / GAUGE_MAX_MBPS, 1);
+        const offset = GAUGE_CIRCUMFERENCE - (ratio * GAUGE_CIRCUMFERENCE);
+        gaugeFill.style.strokeDashoffset = offset;
+    }
+}
+
+function setTestingState(isTesting) {
+    if (speedCircle) {
+        speedCircle.classList.toggle("is-testing", isTesting);
     }
 }
 
@@ -224,6 +243,7 @@ async function startSpeedTest() {
     testing = true;
     disableButton();
     resetResults();
+    setTestingState(true);
 
     downloadEl.textContent = "Testing...";
     uploadEl.textContent = "Waiting...";
@@ -274,6 +294,7 @@ async function startSpeedTest() {
     finally {
         testing = false;
         enableButton();
+        setTestingState(false);
     }
 }
 
