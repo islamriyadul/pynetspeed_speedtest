@@ -31,8 +31,7 @@ let testing = false;
 const DOWNLOAD_PARALLEL_STREAMS = 2;
 const DOWNLOAD_SIZE_MB_PER_STREAM = 8;
 
-const UPLOAD_PARALLEL_STREAMS = 2;
-const UPLOAD_SIZE_MB_PER_STREAM = 3;
+const UPLOAD_SIZE_MB = 3;
 
 // ======================================
 // HELPERS
@@ -182,16 +181,18 @@ async function measureDownload() {
 }
 
 // ======================================
-// UPLOAD (parallel streams)
+// UPLOAD (single stream — more reliable on constrained free-tier servers)
 // ======================================
 
-async function uploadStream(sizeMb) {
-    const size = sizeMb * 1024 * 1024;
+async function measureUpload() {
+    const size = UPLOAD_SIZE_MB * 1024 * 1024;
 
     const data = new Blob(
         [new Uint8Array(size)],
         { type: "application/octet-stream" }
     );
+
+    const start = performance.now();
 
     const response = await fetch(
         "/speedtest/upload/",
@@ -211,24 +212,10 @@ async function uploadStream(sizeMb) {
 
     await response.json();
 
-    return size;
-}
-
-async function measureUpload() {
-    const start = performance.now();
-
-    const streams = [];
-    for (let i = 0; i < UPLOAD_PARALLEL_STREAMS; i++) {
-        streams.push(uploadStream(UPLOAD_SIZE_MB_PER_STREAM));
-    }
-
-    const results = await Promise.all(streams);
-    const totalBytes = results.reduce((sum, b) => sum + b, 0);
-
     const end = performance.now();
     const seconds = (end - start) / 1000;
 
-    const speed = (totalBytes * 8) / seconds / 1000000;
+    const speed = (size * 8) / seconds / 1000000;
 
     return Number(speed.toFixed(2));
 }
