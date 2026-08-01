@@ -31,7 +31,7 @@ let testing = false;
 const DOWNLOAD_PARALLEL_STREAMS = 2;
 const DOWNLOAD_SIZE_MB_PER_STREAM = 8;
 
-const UPLOAD_SIZE_MB = 1;
+const UPLOAD_SIZE_MB = 0.25;
 
 // ======================================
 // HELPERS
