@@ -18,6 +18,15 @@ const speedNumber = document.getElementById("speed-number");
 
 let testing = false;
 
+// Tune these to trade off accuracy vs test duration.
+// Kept modest since Render's free tier has very limited CPU (0.1 core) —
+// large parallel payloads will bottleneck at the server, not the network.
+const DOWNLOAD_PARALLEL_STREAMS = 2;
+const DOWNLOAD_SIZE_MB_PER_STREAM = 8;
+
+const UPLOAD_PARALLEL_STREAMS = 2;
+const UPLOAD_SIZE_MB_PER_STREAM = 3;
+
 // ======================================
 // HELPERS
 // ======================================
@@ -33,23 +42,15 @@ function setCenterSpeed(value) {
 }
 
 function disableButton() {
-
     startBtn.disabled = true;
-
     startBtn.innerHTML = "TESTING";
-
     startBtn.style.opacity = ".8";
-
 }
 
 function enableButton() {
-
     startBtn.disabled = false;
-
     startBtn.innerHTML = "GO";
-
     startBtn.style.opacity = "1";
-
 }
 
 // ======================================
@@ -57,27 +58,18 @@ function enableButton() {
 // ======================================
 
 async function animateValue(element, target, suffix = "") {
-
     let value = 0;
-
     const step = Math.max(target / 60, 0.5);
 
     while (value < target) {
-
         value += step;
-
         if (value > target) {
             value = target;
         }
-
         element.textContent = value.toFixed(1) + suffix;
-
         setCenterSpeed(value);
-
         await sleep(15);
-
     }
-
 }
 
 // ======================================
@@ -85,15 +77,10 @@ async function animateValue(element, target, suffix = "") {
 // ======================================
 
 function resetResults() {
-
     downloadEl.textContent = "0 Mbps";
-
     uploadEl.textContent = "0 Mbps";
-
     pingEl.textContent = "0 ms";
-
     setCenterSpeed(0);
-
 }
 
 // ======================================
@@ -101,18 +88,16 @@ function resetResults() {
 // ======================================
 
 async function measurePing() {
-
     let total = 0;
+    const rounds = 5;
+    let best = Infinity;
 
-    for (let i = 0; i < 3; i++) {
-
+    for (let i = 0; i < rounds; i++) {
         const start = performance.now();
 
         const response = await fetch(
             "/speedtest/ping/?t=" + Date.now(),
-            {
-                cache: "no-store"
-            }
+            { cache: "no-store" }
         );
 
         if (!response.ok) {
@@ -120,28 +105,26 @@ async function measurePing() {
         }
 
         const end = performance.now();
+        const rtt = end - start;
 
-        total += (end - start);
-
+        total += rtt;
+        if (rtt < best) best = rtt;
     }
 
-    return Number((total / 3).toFixed(1));
-
+    // Use the best (lowest) round-trip time — closer to how
+    // most speed test tools report ping, since it avoids
+    // penalizing you for one slow/jittery request.
+    return Number(best.toFixed(1));
 }
 
 // ======================================
-// DOWNLOAD
+// DOWNLOAD (parallel streams)
 // ======================================
 
-async function measureDownload() {
-
-    const start = performance.now();
-
+async function downloadStream(sizeMb) {
     const response = await fetch(
-        "/speedtest/download/?size=5&t=" + Date.now(),
-        {
-            cache: "no-store"
-        }
+        "/speedtest/download/?size=" + sizeMb + "&t=" + Date.now() + Math.random(),
+        { cache: "no-store" }
     );
 
     if (!response.ok) {
@@ -149,45 +132,47 @@ async function measureDownload() {
     }
 
     const reader = response.body.getReader();
-
     let bytes = 0;
 
     while (true) {
-
         const { done, value } = await reader.read();
-
         if (done) break;
-
         bytes += value.length;
-
     }
 
-    const end = performance.now();
+    return bytes;
+}
 
+async function measureDownload() {
+    const start = performance.now();
+
+    const streams = [];
+    for (let i = 0; i < DOWNLOAD_PARALLEL_STREAMS; i++) {
+        streams.push(downloadStream(DOWNLOAD_SIZE_MB_PER_STREAM));
+    }
+
+    const results = await Promise.all(streams);
+    const totalBytes = results.reduce((sum, b) => sum + b, 0);
+
+    const end = performance.now();
     const seconds = (end - start) / 1000;
 
-    const speed = (bytes * 8) / seconds / 1000000;
+    const speed = (totalBytes * 8) / seconds / 1000000;
 
     return Number(speed.toFixed(2));
-
 }
+
 // ======================================
-// UPLOAD
+// UPLOAD (parallel streams)
 // ======================================
 
-async function measureUpload() {
-
-    // Upload 1 MB (fast and reliable)
-    const size = 2 * 1024 * 1024;
+async function uploadStream(sizeMb) {
+    const size = sizeMb * 1024 * 1024;
 
     const data = new Blob(
         [new Uint8Array(size)],
-        {
-            type: "application/octet-stream"
-        }
+        { type: "application/octet-stream" }
     );
-
-    const start = performance.now();
 
     const response = await fetch(
         "/speedtest/upload/",
@@ -207,14 +192,26 @@ async function measureUpload() {
 
     await response.json();
 
-    const end = performance.now();
+    return size;
+}
 
+async function measureUpload() {
+    const start = performance.now();
+
+    const streams = [];
+    for (let i = 0; i < UPLOAD_PARALLEL_STREAMS; i++) {
+        streams.push(uploadStream(UPLOAD_SIZE_MB_PER_STREAM));
+    }
+
+    const results = await Promise.all(streams);
+    const totalBytes = results.reduce((sum, b) => sum + b, 0);
+
+    const end = performance.now();
     const seconds = (end - start) / 1000;
 
-    const speed = (size * 8) / seconds / 1000000;
+    const speed = (totalBytes * 8) / seconds / 1000000;
 
     return Number(speed.toFixed(2));
-
 }
 
 // ======================================
@@ -222,13 +219,10 @@ async function measureUpload() {
 // ======================================
 
 async function startSpeedTest() {
-
     if (testing) return;
 
     testing = true;
-
     disableButton();
-
     resetResults();
 
     downloadEl.textContent = "Testing...";
@@ -236,13 +230,10 @@ async function startSpeedTest() {
     pingEl.textContent = "Testing...";
 
     try {
-
         // -----------------------------
         // Ping
         // -----------------------------
-
         const ping = await measurePing();
-
         pingEl.textContent = ping + " ms";
 
         await sleep(300);
@@ -250,62 +241,40 @@ async function startSpeedTest() {
         // -----------------------------
         // Download
         // -----------------------------
-
         downloadEl.textContent = "Testing...";
 
         const download = await measureDownload();
 
-        await animateValue(
-            downloadEl,
-            download,
-            " Mbps"
-        );
+        await animateValue(downloadEl, download, " Mbps");
 
         await sleep(400);
 
         // -----------------------------
         // Upload
         // -----------------------------
-
         uploadEl.textContent = "Testing...";
-
         setCenterSpeed(0);
 
         const upload = await measureUpload();
 
-        await animateValue(
-            uploadEl,
-            upload,
-            " Mbps"
-        );
+        await animateValue(uploadEl, upload, " Mbps");
 
-        // Show final result in center
+        // Show final download result in center
         setCenterSpeed(download);
-
     }
 
     catch (error) {
-
         console.error(error);
-
         downloadEl.textContent = "Error";
-
         uploadEl.textContent = "Error";
-
         pingEl.textContent = "Error";
-
         setCenterSpeed(0);
-
     }
 
     finally {
-
         testing = false;
-
         enableButton();
-
     }
-
 }
 
 // ======================================
@@ -313,12 +282,7 @@ async function startSpeedTest() {
 // ======================================
 
 if (startBtn) {
-
-    startBtn.addEventListener(
-        "click",
-        startSpeedTest
-    );
-
+    startBtn.addEventListener("click", startSpeedTest);
 }
 
 // ======================================
