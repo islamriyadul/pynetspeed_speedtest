@@ -1,9 +1,12 @@
-from django.shortcuts import render
+﻿from django.shortcuts import render
 from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import time
 import os
 import logging
+import json
+import urllib.request
+import urllib.error
 
 logger = logging.getLogger(__name__)
 
@@ -40,18 +43,47 @@ def download_test(request):
 
 @csrf_exempt
 def upload_test(request):
-    logger.warning("UPLOAD VIEW CALLED")
-
     if request.method != "POST":
-        logger.warning("NOT A POST REQUEST")
         return JsonResponse(
             {"error": "POST request required"},
             status=405
         )
 
-    logger.warning("RETURNING SUCCESS")
-
     return JsonResponse({
         "status": "success",
         "message": "Upload endpoint reached"
     })
+
+
+def get_client_ip(request):
+    forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    return request.META.get("REMOTE_ADDR", "")
+
+
+def client_info(request):
+    ip = get_client_ip(request)
+
+    if not ip:
+        return JsonResponse({"ip": "Unavailable", "isp": "Unavailable"})
+
+    try:
+        lookup_url = f"https://ipapi.co/{ip}/json/"
+        req = urllib.request.Request(
+            lookup_url,
+            headers={"User-Agent": "PyNetSpeed/1.0"}
+        )
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+
+        if data.get("error"):
+            raise ValueError(data.get("reason", "lookup error"))
+
+        return JsonResponse({
+            "ip": data.get("ip", ip),
+            "isp": data.get("org", "Unknown ISP")
+        })
+
+    except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError):
+        return JsonResponse({"ip": ip, "isp": "Unavailable"})
