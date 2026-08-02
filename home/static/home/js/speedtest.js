@@ -184,40 +184,75 @@ async function measureDownload() {
 // UPLOAD (single stream — more reliable on constrained free-tier servers)
 // ======================================
 
+// Some local security software (antivirus "web shields", some
+// corporate/VPN network filters) intercepts and deep-scans
+// application/octet-stream request bodies before letting them
+// leave the machine, which can stall a POST for a long time even
+// though nothing is wrong with the server or the network itself.
+// Sending the payload as plain text instead of raw binary avoids
+// tripping that class of interception for most users, and using
+// XHR with a hard timeout means that if something on the client
+// machine *does* still hold the request, we fail fast and retry
+// with a smaller payload instead of leaving the UI stuck for
+// minutes with no feedback.
+
+function buildUploadPayload(sizeBytes) {
+    // Plain text of the requested size — cheap to build (no crypto
+    // RNG needed since we're only measuring transfer time) and far
+    // less likely to be treated as a "file" by content inspectors.
+    return "x".repeat(sizeBytes);
+}
+
+function uploadOnce(sizeBytes, timeoutMs) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const start = performance.now();
+
+        xhr.open("POST", "/speedtest/upload/", true);
+        xhr.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
+        xhr.timeout = timeoutMs;
+
+        xhr.onload = () => {
+            if (xhr.status < 200 || xhr.status >= 300) {
+                reject(new Error("Upload Failed (" + xhr.status + ")"));
+                return;
+            }
+            const seconds = (performance.now() - start) / 1000;
+            const speed = (sizeBytes * 8) / seconds / 1000000;
+            resolve(Number(speed.toFixed(2)));
+        };
+
+        xhr.onerror = () => reject(new Error("Upload Failed (network error)"));
+        xhr.ontimeout = () => reject(new Error("Upload Timed Out"));
+
+        xhr.send(buildUploadPayload(sizeBytes));
+    });
+}
+
 async function measureUpload() {
-    const size = UPLOAD_SIZE_MB * 1024 * 1024;
+    const fullSize = Math.round(UPLOAD_SIZE_MB * 1024 * 1024);
 
-    const data = new Blob(
-        [new Uint8Array(size)],
-        { type: "application/octet-stream" }
-    );
-
-    const start = performance.now();
-
-    const response = await fetch(
-        "/speedtest/upload/",
-        {
-            method: "POST",
-            body: data,
-            headers: {
-                "Content-Type": "application/octet-stream"
-            },
-            cache: "no-store"
+    try {
+        // First attempt: normal size, generous but bounded timeout.
+        return await uploadOnce(fullSize, 8000);
+    } catch (err) {
+        // Something stalled or failed fast — try once more with a
+        // much smaller payload before giving up. If the environment
+        // is holding the connection itself (not a bandwidth issue),
+        // a smaller size won't fix it, but this keeps the test quick
+        // rather than hanging, and still gives a real reading if the
+        // first attempt was just unlucky.
+        try {
+            return await uploadOnce(16 * 1024, 5000);
+        } catch (err2) {
+            // Genuinely can't complete an upload in reasonable time —
+            // report this distinctly rather than showing a misleading
+            // near-zero Mbps figure.
+            const notAvailable = new Error("UPLOAD_UNAVAILABLE");
+            notAvailable.cause = err2;
+            throw notAvailable;
         }
-    );
-
-    if (!response.ok) {
-        throw new Error("Upload Failed");
     }
-
-    await response.json();
-
-    const end = performance.now();
-    const seconds = (end - start) / 1000;
-
-    const speed = (size * 8) / seconds / 1000000;
-
-    return Number(speed.toFixed(2));
 }
 
 // ======================================
@@ -262,9 +297,17 @@ async function startSpeedTest() {
         uploadEl.textContent = "Testing...";
         setCenterSpeed(0);
 
-        const upload = await measureUpload();
-
-        await animateValue(uploadEl, upload, " Mbps");
+        try {
+            const upload = await measureUpload();
+            await animateValue(uploadEl, upload, " Mbps");
+        } catch (uploadError) {
+            console.error(uploadError);
+            // Upload couldn't complete quickly (often caused by local
+            // antivirus/VPN/network software intercepting the request
+            // rather than an actual bandwidth problem) — say so plainly
+            // instead of showing a misleading near-zero Mbps number.
+            uploadEl.textContent = "Unavailable";
+        }
 
         // Show final download result in center
         setCenterSpeed(download);
