@@ -14,6 +14,9 @@ const speedNumber = document.getElementById("speed-number");
 const speedCircle = document.getElementById("speed-circle");
 const gaugeFill = document.getElementById("gauge-fill");
 
+const ispEl = document.getElementById("isp");
+const ipEl = document.getElementById("ip");
+
 // Gauge ring circumference (r=120 -> 2 * PI * 120 ≈ 754), and the
 // speed value (Mbps) that should visually represent a "full" ring.
 const GAUGE_CIRCUMFERENCE = 754;
@@ -329,6 +332,51 @@ async function startSpeedTest() {
 }
 
 // ======================================
+// ISP / IP DETECTION
+// ======================================
+
+// Runs once on page load, independent of the speed test itself.
+// Uses ipapi.co (HTTPS, no API key needed for light use) to look
+// up the visitor's public IP and their ISP/organization name.
+
+async function detectIspAndIp() {
+    if (!ispEl && !ipEl) return;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    try {
+        const response = await fetch("https://ipapi.co/json/", {
+            signal: controller.signal,
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error("IP lookup failed (" + response.status + ")");
+        }
+
+        const info = await response.json();
+
+        if (info.error) {
+            throw new Error(info.reason || "IP lookup error");
+        }
+
+        if (ipEl) {
+            ipEl.textContent = info.ip || "Unavailable";
+        }
+        if (ispEl) {
+            ispEl.textContent = info.org || "Unknown ISP";
+        }
+    } catch (err) {
+        console.error("ISP/IP detection failed:", err);
+        if (ipEl) ipEl.textContent = "Unavailable";
+        if (ispEl) ispEl.textContent = "Unavailable";
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
+// ======================================
 // EVENT LISTENER
 // ======================================
 
@@ -341,5 +389,6 @@ if (startBtn) {
 // ======================================
 
 resetResults();
+detectIspAndIp();
 
 console.log("✅ PyNetSpeed Ready");
