@@ -233,8 +233,8 @@ async function measureUpload() {
     const fullSize = Math.round(UPLOAD_SIZE_MB * 1024 * 1024);
 
     try {
-        // First attempt: normal size, generous but bounded timeout.
-        return await uploadOnce(fullSize, 8000);
+        // First attempt: normal size, bounded timeout.
+        return await uploadOnce(fullSize, 4000);
     } catch (err) {
         // Something stalled or failed fast — try once more with a
         // much smaller payload before giving up. If the environment
@@ -243,7 +243,7 @@ async function measureUpload() {
         // rather than hanging, and still gives a real reading if the
         // first attempt was just unlucky.
         try {
-            return await uploadOnce(16 * 1024, 5000);
+            return await uploadOnce(16 * 1024, 2500);
         } catch (err2) {
             // Genuinely can't complete an upload in reasonable time —
             // report this distinctly rather than showing a misleading
