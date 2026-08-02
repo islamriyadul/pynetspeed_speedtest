@@ -211,7 +211,12 @@ function uploadOnce(sizeBytes, timeoutMs) {
         const xhr = new XMLHttpRequest();
         const start = performance.now();
 
-        xhr.open("POST", "/speedtest/upload/", true);
+        // Unique URL per attempt: guarantees this request can't be
+        // confused with, queued behind, or served from any cached/
+        // reused state left over from a previous test run.
+        const uniqueUrl = "/speedtest/upload/?t=" + Date.now() + Math.random().toString(36).slice(2);
+
+        xhr.open("POST", uniqueUrl, true);
         xhr.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
         xhr.timeout = timeoutMs;
 
@@ -225,8 +230,14 @@ function uploadOnce(sizeBytes, timeoutMs) {
             resolve(Number(speed.toFixed(2)));
         };
 
-        xhr.onerror = () => reject(new Error("Upload Failed (network error)"));
-        xhr.ontimeout = () => reject(new Error("Upload Timed Out"));
+        xhr.onerror = () => {
+            xhr.abort();
+            reject(new Error("Upload Failed (network error)"));
+        };
+        xhr.ontimeout = () => {
+            xhr.abort();
+            reject(new Error("Upload Timed Out"));
+        };
 
         xhr.send(buildUploadPayload(sizeBytes));
     });
