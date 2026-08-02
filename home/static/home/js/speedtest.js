@@ -237,7 +237,7 @@ async function measureUpload() {
 
     try {
         // First attempt: normal size, bounded timeout.
-        return await uploadOnce(fullSize, 4000);
+        return await uploadOnce(fullSize, 2500);
     } catch (err) {
         // Something stalled or failed fast — try once more with a
         // much smaller payload before giving up. If the environment
@@ -246,7 +246,7 @@ async function measureUpload() {
         // rather than hanging, and still gives a real reading if the
         // first attempt was just unlucky.
         try {
-            return await uploadOnce(16 * 1024, 2500);
+            return await uploadOnce(16 * 1024, 1500);
         } catch (err2) {
             // Genuinely can't complete an upload in reasonable time —
             // report this distinctly rather than showing a misleading
@@ -343,29 +343,25 @@ async function detectIspAndIp() {
     if (!ispEl && !ipEl) return;
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const timeout = setTimeout(() => controller.abort(), 6000);
 
     try {
-        const response = await fetch("https://ipapi.co/json/", {
+        const response = await fetch("/speedtest/client-info/", {
             signal: controller.signal,
             cache: "no-store"
         });
 
         if (!response.ok) {
-            throw new Error("IP lookup failed (" + response.status + ")");
+            throw new Error("client-info lookup failed (" + response.status + ")");
         }
 
         const info = await response.json();
-
-        if (info.error) {
-            throw new Error(info.reason || "IP lookup error");
-        }
 
         if (ipEl) {
             ipEl.textContent = info.ip || "Unavailable";
         }
         if (ispEl) {
-            ispEl.textContent = info.org || "Unknown ISP";
+            ispEl.textContent = info.isp || "Unavailable";
         }
     } catch (err) {
         console.error("ISP/IP detection failed:", err);
